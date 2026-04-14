@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNDERGROUND NEON — Pixel Art Shop</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --neon-cyan: #00f5ff;
+    --neon-pink: #ff00aa;
+    --neon-purple: #bf00ff;
+    --neon-gold: #ffd700;
+    --bg-dark: #050510;
+    --bg-mid: #0a0a20;
+    --bg-card: #0d0d25;
+    --text-main: #e8e8f8;
+    --text-sub: #9999cc;
+    --border-glow: rgba(0,245,255,0.3);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(191,0,255,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 90%, rgba(0,245,255,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── GRID LINES ─── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── NAVIGATION ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(5,5,16,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-glow);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 16px rgba(0,245,255,0.6);
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-sub);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--neon-cyan); }
+
+  /* ─── HERO / IFRAME HEADER ─── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    padding-top: 56px;
+  }
+
+  .iframe-wrap {
+    width: 100%;
+    height: 480px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 2px solid var(--border-glow);
+  }
+
+  .iframe-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent 70%, var(--bg-dark) 100%);
+    z-index: 2;
+  }
+
+  .iframe-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  /* scanline overlay */
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  /* ─── TAGLINE ─── */
+  .tagline-section {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 60px 24px 40px;
+  }
+
+  .tagline-eyebrow {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--neon-pink);
+    margin-bottom: 16px;
+  }
+
+  .tagline-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(28px, 6vw, 52px);
+    font-weight: 900;
+    line-height: 1.1;
+    color: var(--text-main);
+    text-shadow: 0 0 40px rgba(0,245,255,0.3);
+    margin-bottom: 20px;
+  }
+
+  .tagline-title span {
+    color: var(--neon-cyan);
+    text-shadow: 0 0 24px rgba(0,245,255,0.8);
+  }
+
+  .tagline-desc {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text-sub);
+    max-width: 520px;
+    margin: 0 auto 36px;
+  }
+
+  /* ─── CTA BUTTONS ─── */
+  .cta-group {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: transparent;
+    border: 1.5px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s;
+    box-shadow: 0 0 16px rgba(0,245,255,0.2), inset 0 0 16px rgba(0,245,255,0.05);
+  }
+
+  .btn-primary:hover {
+    background: rgba(0,245,255,0.1);
+    box-shadow: 0 0 32px rgba(0,245,255,0.4), inset 0 0 24px rgba(0,245,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  .btn-etsy {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #f1641e, #d44000);
+    border: 1.5px solid rgba(241,100,30,0.6);
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    transition: all 0.25s;
+    box-shadow: 0 0 20px rgba(241,100,30,0.3);
+  }
+
+  .btn-etsy:hover {
+    box-shadow: 0 0 36px rgba(241,100,30,0.5);
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+  }
+
+  .btn-icon {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+  }
+
+  /* ─── DIVIDER ─── */
+  .neon-divider {
+    position: relative;
+    z-index: 1;
+    height: 1px;
+    margin: 0 24px;
+    background: linear-gradient(90deg, transparent, var(--neon-purple), var(--neon-cyan), var(--neon-purple), transparent);
+    opacity: 0.5;
+  }
+
+  /* ─── SECTION HEADER ─── */
+  .section-header {
+    text-align: center;
+    padding: 64px 24px 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--neon-purple);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(22px, 4vw, 36px);
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  /* ─── GALLERY ─── */
+  .gallery-section {
+    position: relative;
+    z-index: 1;
+    padding: 0 20px 80px;
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .gallery-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(0,245,255,0.12);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+  }
+
+  .gallery-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(191,0,255,0.05), rgba(0,245,255,0.05));
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 1;
+  }
+
+  .gallery-card:hover {
+    border-color: rgba(0,245,255,0.5);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0,245,255,0.15), 0 0 0 1px rgba(0,245,255,0.2);
+  }
+
+  .gallery-card:hover::before { opacity: 1; }
+
+  .card-img {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #080818;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Pixel art placeholder canvases */
+  .pixel-canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    width: 128px;
+    height: 128px;
+    transform: scale(1.6);
+    transform-origin: center;
+  }
+
+  .card-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(5,5,16,0.8);
+    border: 1px solid var(--neon-gold);
+    color: var(--neon-gold);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 4px 8px;
+    z-index: 2;
+  }
+
+  .card-body {
+    padding: 16px 20px 20px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .card-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+
+  .card-desc {
+    font-size: 12px;
+    color: var(--text-sub);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-price {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 16px;
+    color: var(--neon-cyan);
+  }
+
+  .card-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--neon-pink);
+    border: 1px solid rgba(255,0,170,0.3);
+    padding: 3px 8px;
+    letter-spacing: 0.1em;
+  }
+
+  /* ─── ETSY STRIP ─── */
+  .etsy-strip {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 60px 24px;
+    border-top: 1px solid rgba(0,245,255,0.1);
+    border-bottom: 1px solid rgba(0,245,255,0.1);
+    background: rgba(13,13,37,0.6);
+    margin: 0 0 80px;
+  }
+
+  .etsy-strip h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(18px, 3.5vw, 28px);
+    color: var(--text-main);
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+
+  .etsy-strip p {
+    font-size: 14px;
+    color: var(--text-sub);
+    margin-bottom: 32px;
+  }
+
+  /* ─── ABOUT ─── */
+  .about-section {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+    margin: 0 auto 80px;
+    padding: 0 24px;
+  }
+
+  .about-box {
+    border: 1px solid rgba(191,0,255,0.25);
+    background: rgba(13,13,37,0.7);
+    padding: 36px 40px;
+    position: relative;
+  }
+
+  .about-box::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 20px; right: 20px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--neon-purple), transparent);
+  }
+
+  .about-box h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px;
+    color: var(--neon-purple);
+    letter-spacing: 0.12em;
+    margin-bottom: 16px;
+  }
+
+  .about-box p {
+    font-size: 14px;
+    line-height: 2;
+    color: var(--text-sub);
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 32px 24px;
+    border-top: 1px solid rgba(0,245,255,0.08);
+  }
+
+  footer p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-sub);
+    letter-spacing: 0.1em;
+  }
+
+  footer .footer-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    color: var(--neon-cyan);
+    opacity: 0.7;
+    margin-bottom: 8px;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    .nav-links { display: none; }
+    .iframe-wrap { height: 280px; }
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .card-body { padding: 12px 14px 16px; }
+    .about-box { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── NAVIGATION ─── -->
+<nav>
+  <a class="nav-logo" href="#">UNDERGROUND_NEON</a>
+  <ul class="nav-links">
+    <li><a href="#gallery">GALLERY</a></li>
+    <li><a href="#shop">SHOP</a></li>
+    <li><a href="#about">ABOUT</a></li>
+  </ul>
+</nav>
+
+<!-- ─── HERO / IFRAME ─── -->
+<section class="hero">
+  <div class="iframe-wrap">
+    <iframe
+      src="underground_neon 2.html"
+      title="Underground Neon Animation"
+      scrolling="no"
+      loading="eager"
+    ></iframe>
+    <div class="scanlines"></div>
+  </div>
+</section>
+
+<!-- ─── TAGLINE ─── -->
+<section class="tagline-section">
+  <p class="tagline-eyebrow">// HANDCRAFTED PIXEL ART //</p>
+  <h1 class="tagline-title">
+    NEON FROM THE<br><span>UNDERGROUND</span>
+  </h1>
+  <p class="tagline-desc">
+    暗闇に灯る、ひと粒ひと粒のピクセル。<br>
+    レトロゲーム世代の感性で生み出す、クラフトアート作品。<br>
+    あなたの空間をネオンで染めよう。
+  </p>
+  <div class="cta-group">
+    <a href="#gallery" class="btn-primary">
+      <svg class="btn-icon" viewBox="0 0 18 18" fill="none">
+        <rect x="1" y="1" width="6" height="6" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="11" y="1" width="6" height="6" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="1" y="11" width="6" height="6" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="11" y="11" width="6" height="6" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      GALLERY
+    </a>
+    <a href="https://www.etsy.com" target="_blank" rel="noopener" class="btn-etsy">
+      <svg class="btn-icon" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="7.5" stroke="white" stroke-width="1.5"/>
+        <path d="M5 9h8M9 5v8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      ETSY SHOP
+    </a>
+  </div>
+</section>
+
+<div class="neon-divider"></div>
+
+<!-- ─── GALLERY ─── -->
+<div class="section-header" id="gallery">
+  <span class="section-label">[ COLLECTION ]</span>
+  <h2 class="section-title">PIXEL ART WORKS</h2>
+</div>
+
+<section class="gallery-section">
+  <div class="gallery-grid">
+
+    <!-- Card 1 -->
+    <a href="https://www.etsy.com" target="_blank" rel="noopener" class="gallery-card">
+      <div class="card-img">
+        <canvas class="pixel-canvas" id="c1" width="16" height="16"></canvas>
+        <span class="card-badge">DIGITAL</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">NEON CITY 001</div>
+        <div class="card-desc">霧雨に滲むネオン街。雨夜の情景をピクセルで再構築した都市風景。</div>
+        <div class="card-footer">
+          <span class="card-price">$8.00</span>
+          <span class="card-tag">CITYSCAPE</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Card 2 -->
+    <a href="https://www.etsy.com" target="_blank" rel="noopener" class="gallery-card">
+      <div class="card-img">
+        <canvas class="pixel-canvas" id="c2" width="16" height="16"></canvas>
+        <span class="card-badge">DIGITAL</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">GHOST ARCADE</div>
+        <div class="card-desc">廃墟となったゲームセンター。静寂の中に鳴り続けるBGMを感じて。</div>
+        <div class="card-footer">
+          <span class="card-price">$10.00</span>
+          <span class="card-tag">RETRO</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Card 3 -->
+    <a href="https://www.etsy.com" target="_blank" rel="noopener" class="gallery-card">
+      <div class="card-img">
+        <canvas class="pixel-canvas" id="c3" width="16" height="16"></canvas>
+        <span class="card-badge">LIMITED</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">CYBER SHRINE</div>
+        <div class="card-desc">デジタルと和が交差する神域。未来の鳥居にはLEDが宿る。</div>
+        <div class="card-footer">
+          <span class="card-price">$14.00</span>
+          <span class="card-tag">CYBERPUNK</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Card 4 -->
+    <a href="https://www.etsy.com" target="_blank" rel="noopener" class="gallery-card">
+      <div class="card-img">
+        <canvas class="pixel-canvas" id="c4" width="16" height="16"></canvas>
+        <span class="card-badge">DIGITAL</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">DEEP SPACE CAT</div>
+        <div class="card-desc">宇宙を漂う猫。重力なんて知らない、自由な魂のポートレート。</div>
+        <div class="card-footer">
+          <span class="card-price">$7.00</span>
+          <span class="card-tag">CHARACTER</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Card 5 -->
+    <a href="https://www.etsy.com" target="_blank" rel="noopener" class="gallery-card">
+      <div class="card-img">
+        <canvas class="pixel-canvas" id="c5" width="16" height="16"></canvas>
+      </div>
+      <div class="card-body">
+        <div class="card-title">MIDNIGHT RAMEN</div>
+        <div class="card-desc">深夜の屋台ラーメン。湯気と匂いまで伝わるピクセルの質感。</div>
+        <div class="card-footer">
+          <span class="card-price">$9.00</span>
+          <span class="card-tag">FOOD & LIFE</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Card 6 -->
+    <a href="https://www.etsy.com" target="_blank" rel="noopener" class="gallery-card">
+      <div class="card-img">
+        <canvas class="pixel-canvas" id="c6" width="16" height="16"></canvas>
+        <span class="card-badge">NEW</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">LOST SIGNAL</div>
+        <div class="card-desc">断絶した通信。ノイズの中に残る、かすかな誰かの声を探して。</div>
+        <div class="card-footer">
+          <span class="card-price">$12.00</span>
+          <span class="card-tag">ABSTRACT</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- ─── ETSY CTA STRIP ─── -->
+<div class="etsy-strip" id="shop">
+  <h2>すべての作品はEtsyで販売中</h2>
+  <p>高解像度データ・即ダウンロード対応 &nbsp;|&nbsp; 商用利用ライセンスあり</p>
+  <a href="https://www.etsy.com" target="_blank" rel="noopener" class="btn-etsy" style="font-size: 13px; padding: 16px 40px;">
+    <svg style="width:18px;height:18px" viewBox="0 0 18 18" fill="none">
+      <path d="M3 9h12M11 5l4 4-4 4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    VISIT ETSY SHOP
+  </a>
+</div>
+
+<!-- ─── ABOUT ─── -->
+<section class="about-section" id="about">
+  <div class="about-box">
+    <h2>// ABOUT THE ARTIST</h2>
+    <p>
+      地下室のモニターに張り付いて、ひとつひとつのピクセルを置いていく。<br><br>
+      8ビット時代のゲームに育てられた感性と、現代のネオン都市への憧れが交差する場所から生まれた作品たちです。
+      すべてのアートはオリジナルで、デジタルファイルとして即座にお届けします。
+      プリントしてお部屋に飾ったり、デスクトップ壁紙にも最適です。
+    </p>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <p class="footer-logo">UNDERGROUND_NEON</p>
+  <p>&copy; 2025 Underground Neon Art. All rights reserved.</p>
+</footer>
+
+<!-- ─── PIXEL ART GENERATION ─── -->
+<script>
+// Pixel art palettes & patterns for placeholder canvases
+const arts = [
+  // NEON CITY - purples and cyans
+  {
+    pal: ['#050510','#0a0a30','#00f5ff','#bf00ff','#ff00aa','#1a1a50','#00aacc','#ffffff'],
+    map: [
+      [0,0,0,0,0,5,0,0,0,0,0,5,0,0,0,0],
+      [0,0,0,5,0,5,0,5,0,0,5,5,0,5,0,0],
+      [0,0,5,5,0,5,5,5,0,5,5,5,0,5,5,0],
+      [0,5,5,5,2,5,5,5,2,5,5,5,2,5,5,5],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,2,1,1,1,3,1,1,1,2,1,1,1,1,1,1],
+      [1,2,1,4,1,3,1,4,1,2,1,4,1,4,1,1],
+      [0,2,0,4,0,3,0,4,0,2,0,4,0,4,0,0],
+      [0,2,0,4,0,3,0,4,0,2,0,4,0,4,0,0],
+      [1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+      [1,1,0,2,0,3,0,2,0,3,0,2,0,3,1,1],
+      [1,1,0,2,0,3,0,2,0,3,0,2,0,3,1,1],
+      [1,1,0,2,2,3,3,2,2,3,3,2,2,3,1,1],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      [6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6],
+      [6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6],
+    ]
+  },
+  // GHOST ARCADE
+  {
+    pal: ['#050510','#1a0a30','#ff00aa','#00f5ff','#ffd700','#aa0077','#0088aa','#ffffff'],
+    map: [
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+      [0,1,4,4,4,4,4,4,4,4,4,4,4,4,1,0],
+      [0,1,4,3,3,4,4,4,4,4,4,2,2,4,1,0],
+      [0,1,4,3,0,3,4,4,4,4,2,0,2,4,1,0],
+      [0,1,4,3,3,4,4,4,4,4,4,2,2,4,1,0],
+      [0,1,4,4,4,4,4,4,4,4,4,4,4,4,1,0],
+      [0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      [0,0,7,7,7,0,0,0,0,0,7,7,7,0,0,0],
+      [0,7,5,5,5,7,0,0,0,7,5,5,5,7,0,0],
+      [0,7,5,0,5,7,0,0,0,7,5,0,5,7,0,0],
+      [0,7,5,5,5,7,0,0,0,7,5,5,5,7,0,0],
+      [0,0,7,7,7,0,0,0,0,0,7,7,7,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    ]
+  },
+  // CYBER SHRINE
+  {
+    pal: ['#050510','#1a0830','#ff4400','#00f5ff','#ffd700','#880000','#660022','#ff8800'],
+    map: [
+      [0,0,0,0,0,4,4,4,4,4,0,0,0,0,0,0],
+      [0,0,0,0,4,0,0,0,0,0,4,0,0,0,0,0],
+      [0,0,0,4,0,0,0,0,0,0,0,4,0,0,0,0],
+      [0,0,4,0,0,0,3,3,3,0,0,0,4,0,0,0],
+      [0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,0],
+      [0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,0],
+      [0,0,0,0,0,3,0,2,0,3,0,0,0,0,0,0],
+      [0,0,0,0,5,3,3,3,3,3,5,0,0,0,0,0],
+      [0,0,0,0,5,5,0,5,0,5,5,0,0,0,0,0],
+      [0,0,0,0,5,0,0,5,0,0,5,0,0,0,0,0],
+      [0,0,0,0,5,0,0,5,0,0,5,0,0,0,0,0],
+      [0,0,0,0,5,0,0,5,0,0,5,0,0,0,0,0],
+      [0,0,5,5,5,5,5,5,5,5,5,5,5,0,0,0],
+      [0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],
+      [7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],
+    ]
+  },
+  // DEEP SPACE CAT
+  {
+    pal: ['#030318','#0a0028','#bf00ff','#00f5ff','#ffffff','#888899','#ff00aa','#ffd700'],
+    map: [
+      [0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0],
+      [0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,4],
+      [0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,5,5,5,5,5,5,5,5,0,0,0,0,0],
+      [0,0,5,5,4,5,5,5,5,4,5,5,0,0,0,0],
+      [0,0,5,5,5,5,5,5,5,5,5,5,0,0,0,0],
+      [0,0,5,3,5,5,5,5,5,5,3,5,0,0,0,0],
+      [0,0,5,5,5,5,5,5,5,5,5,5,0,0,0,0],
+      [0,0,5,5,5,5,5,5,5,5,5,5,0,0,0,0],
+      [0,0,0,5,5,6,6,6,6,5,5,0,0,0,0,0],
+      [0,0,5,5,5,5,5,5,5,5,5,5,0,0,0,0],
+      [0,5,5,0,5,5,0,0,5,5,0,5,5,0,0,0],
+      [0,0,5,0,0,5,0,0,5,0,0,5,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,4,0,0,0,0,0,0,4,0,0,0,0,0],
+      [0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0],
+    ]
+  },
+  // MIDNIGHT RAMEN
+  {
+    pal: ['#050510','#1a1000','#ff6600','#ffd700','#cc4400','#ffffff','#884400','#00f5ff'],
+    map: [
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,7,7,7,7,7,7,7,7,7,0,0,0,0],
+      [0,0,0,7,0,0,0,0,0,0,0,7,0,0,0,0],
+      [0,0,0,7,7,7,7,7,7,7,7,7,0,0,0,0],
+      [0,0,0,0,0,7,0,0,0,7,0,0,0,0,0,0],
+      [0,0,0,0,0,7,0,0,0,7,0,0,0,0,0,0],
+      [0,6,6,6,6,6,6,6,6,6,6,6,6,6,0,0],
+      [0,6,2,2,2,2,2,2,2,2,2,2,2,6,0,0],
+      [0,6,3,4,3,4,3,4,3,4,3,4,3,6,0,0],
+      [0,6,4,3,4,3,4,3,4,3,4,3,4,6,0,0],
+      [0,6,3,4,3,4,3,4,3,4,3,4,3,6,0,0],
+      [0,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0],
+      [0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    ]
+  },
+  // LOST SIGNAL
+  {
+    pal: ['#030318','#080830','#bf00ff','#00f5ff','#ff00aa','#333366','#666699','#ffffff'],
+    map: [
+      [5,5,0,0,2,0,0,0,3,0,0,0,5,5,5,5],
+      [0,5,5,0,0,2,0,3,0,0,0,5,5,0,0,0],
+      [0,0,5,5,0,0,0,0,0,5,5,0,0,0,0,0],
+      [2,0,0,5,5,0,7,0,5,5,0,0,0,2,0,0],
+      [0,2,0,0,5,5,5,5,5,0,0,0,2,0,0,0],
+      [0,0,2,0,0,3,3,3,0,0,0,2,0,0,0,0],
+      [3,0,0,0,0,3,7,3,0,0,0,0,0,0,3,0],
+      [0,3,0,0,0,3,3,3,0,0,0,0,0,3,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      [0,0,2,0,0,0,5,0,0,0,3,0,0,2,0,0],
+      [2,0,0,0,3,0,0,0,2,0,0,0,3,0,0,0],
+      [0,0,5,5,0,0,0,0,0,5,5,0,0,0,0,0],
+      [0,5,5,0,2,0,0,3,0,0,5,5,0,0,0,0],
+      [5,5,0,0,0,2,0,0,3,0,0,5,5,5,0,0],
+      [5,0,0,0,0,0,0,0,0,0,0,0,0,5,5,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+    ]
+  },
+];
+
+function drawPixelArt(canvasId, art) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const s = 1; // 1px per pixel (canvas is 16x16, CSS scales it)
+  art.map.forEach((row, y) => {
+    row.forEach((idx, x) => {
+      ctx.fillStyle = art.pal[idx];
+      ctx.fillRect(x * s, y * s, s, s);
+    });
+  });
+}
+
+arts.forEach((art, i) => {
+  drawPixelArt('c' + (i + 1), art);
+});
+</script>
+</body>
+</html>
